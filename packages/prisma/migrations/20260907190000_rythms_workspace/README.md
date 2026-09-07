@@ -1,0 +1,1 @@
+This migration adds the Rythms company, membership, invitation, meeting assignment, and booking alias tables. It preserves existing meeting types and bookings. Apply it through the normal Prisma migration workflow after validating the complete migration history in staging.
