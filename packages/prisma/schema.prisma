@@ -154,21 +154,23 @@ enum CancellationReasonRequirement {
 }
 
 model EventType {
-  id                Int     @id @default(autoincrement())
+  rythmsCompanies    RythmsCompanyMeeting[]
+  rythmsBookingLinks RythmsBookingLink[]
+  id                 Int                 @id @default(autoincrement())
   /// @zod.string.min(1)
-  title             String
+  title              String
   /// @zod.import(["import { eventTypeSlug } from '../../zod-utils'"]).custom.use(eventTypeSlug)
-  slug              String
-  description       String?
-  interfaceLanguage String?
-  position          Int     @default(0)
+  slug               String
+  description        String?
+  interfaceLanguage  String?
+  position           Int                 @default(0)
   /// @zod.import(["import { eventTypeLocations } from '../../zod-utils'"]).custom.use(eventTypeLocations)
-  locations         Json?
+  locations          Json?
   /// @zod.number.min(1)
-  length            Int
-  offsetStart       Int     @default(0)
-  hidden            Boolean @default(false)
-  hosts             Host[]
+  length             Int
+  offsetStart        Int                 @default(0)
+  hidden             Boolean             @default(false)
+  hosts              Host[]
 
   users  User[] @relation("user_eventtype")
   owner  User?  @relation("owner", fields: [userId], references: [id], onDelete: Cascade)
@@ -399,6 +401,9 @@ model TravelSchedule {
 
 // It holds Personal Profiles of a User plus it has email, password and other core things..
 model User {
+  rythmsMemberships   RythmsCompanyMember[]
+  rythmsCompanies     RythmsCompany[]
+  rythmsBookingLinks  RythmsBookingLink[]
   id                  Int                  @id @default(autoincrement())
   uuid                String               @unique @default(uuid()) @db.Uuid
   username            String?
@@ -2848,4 +2853,73 @@ model AttributeSyncFieldMapping {
 
   @@unique([integrationAttributeSyncId, attributeId])
   @@index([integrationAttributeSyncId])
+}
+
+model RythmsCompany {
+  members      RythmsCompanyMember[]
+  invitations  RythmsCompanyInvitation[]
+  id           String              @id @default(cuid())
+  ownerId      Int
+  owner        User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name         String              @db.VarChar(100)
+  description  String              @default("") @db.VarChar(600)
+  contactEmail String?             @db.VarChar(254)
+  brandColor   String              @default("#2563eb") @db.VarChar(7)
+  published    Boolean             @default(false)
+  meetings     RythmsCompanyMeeting[]
+  links        RythmsBookingLink[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@index([ownerId])
+}
+
+model RythmsBookingLink {
+  id          String         @id @default(cuid())
+  ownerId     Int
+  owner       User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  slug        String         @unique @db.VarChar(48)
+  companyId   String?
+  company     RythmsCompany? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  eventTypeId Int?
+  eventType   EventType?     @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+  enabled     Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+
+  @@index([ownerId])
+  @@index([companyId])
+  @@index([eventTypeId])
+}
+
+model RythmsCompanyMember {
+  companyId String
+  userId    Int
+  company   RythmsCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt  DateTime      @default(now())
+
+  @@id([companyId, userId])
+  @@index([userId])
+}
+
+model RythmsCompanyInvitation {
+  id        String        @id @default(cuid())
+  companyId String
+  company   RythmsCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  email     String        @db.VarChar(254)
+  tokenHash String        @unique @db.VarChar(64)
+  expiresAt DateTime
+  createdAt DateTime      @default(now())
+
+  @@unique([companyId, email])
+}
+
+model RythmsCompanyMeeting {
+  companyId   String
+  eventTypeId Int
+  company     RythmsCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  eventType   EventType     @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, eventTypeId])
+  @@index([eventTypeId])
 }
