@@ -12,7 +12,7 @@ Rythms Cal adds company workspaces, people, and short booking links to the MIT-l
 
 Company contact email is a private administrative label. It does not authenticate another mailbox or change the calendar destination or email sender. Members cannot access another person's calendar credentials. Invitation links expire after seven days; only their hashes are stored. This version creates copyable invitation links and does not send them automatically.
 
-Calendar consolidation means combining selected calendars for availability and writing new bookings to the selected destination. It does not mirror every existing event between mailboxes. This workspace does not add round-robin allocation, collective meetings, company billing, or custom permission roles.
+Calendar consolidation combines selected calendars for availability and writes new bookings to the selected destination. Optional [Microsoft busy-time sync](RYTHMS_BUSY_SYNC.md) also copies private Busy blocks between each person's selected Microsoft calendars, including changes and cancellations, within a rolling 90-day window. This workspace does not add round-robin allocation, collective meetings, company billing, or custom permission roles.
 
 ## Microsoft 365 and additional accounts
 
