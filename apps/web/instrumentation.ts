@@ -1,4 +1,4 @@
-import process from "node:process";
+// biome-ignore-all lint/correctness/noProcessGlobal: Next.js replaces global process.env runtime checks when separating Node and Edge bundles.
 import * as Sentry from "@sentry/nextjs";
 import type { Instrumentation } from "next";
 
