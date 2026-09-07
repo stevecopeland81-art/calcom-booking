@@ -401,6 +401,7 @@ model TravelSchedule {
 
 // It holds Personal Profiles of a User plus it has email, password and other core things..
 model User {
+  rythmsCalendarSync  RythmsCalendarSync?
   rythmsMemberships   RythmsCompanyMember[]
   rythmsCompanies     RythmsCompany[]
   rythmsBookingLinks  RythmsBookingLink[]
@@ -2922,4 +2923,37 @@ model RythmsCompanyMeeting {
 
   @@id([companyId, eventTypeId])
   @@index([eventTypeId])
+}
+
+model RythmsCalendarSync {
+  id            String                 @id @default(uuid())
+  userId        Int                    @unique
+  user          User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enabled       Boolean                @default(false)
+  calendars     Json                   @default("[]")
+  revision      Int                    @default(0)
+  cleanup       Boolean                @default(false)
+  nextRunAt     DateTime               @default(now())
+  lastAttemptAt DateTime?
+  lastSuccessAt DateTime?
+  lastError     String?
+  leaseToken    String?
+  leaseUntil    DateTime?
+  mirrors       RythmsCalendarMirror[]
+
+  @@index([nextRunAt])
+}
+
+model RythmsCalendarMirror {
+  id            String             @id @default(uuid())
+  syncId        String
+  sync          RythmsCalendarSync @relation(fields: [syncId], references: [id], onDelete: Cascade)
+  sourceKey     String
+  targetKey     String
+  credentialId  Int
+  calendarId    String
+  eventId       String?
+  transactionId String             @default(uuid())
+
+  @@unique([syncId, sourceKey, targetKey])
 }
