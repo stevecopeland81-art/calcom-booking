@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { SelectedCalendarsSettingsWebWrapper } from "~/calendars/components/SelectedCalendarsSettingsWebWrapper";
 import CompanyPeople from "./CompanyPeople";
+import CalendarSyncPanel from "./calendar-sync/CalendarSyncPanel";
 import type { CompanyInput, WorkspaceMutation } from "./schema";
 import type { WorkspaceData } from "./service";
 import styles from "./workspace.module.css";
@@ -49,6 +50,7 @@ function CalendarPanel() {
         />
       </Suspense>
       <p className={styles.help}>{t("rythms_destination_help")}</p>
+      <CalendarSyncPanel />
     </section>
   );
 }
