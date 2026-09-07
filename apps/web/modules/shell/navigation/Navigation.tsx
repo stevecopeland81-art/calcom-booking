@@ -13,6 +13,11 @@ export const MORE_SEPARATOR_NAME = "more";
 
 const getNavigationItems = (): NavigationItemType[] => [
   {
+    name: "rythms_tab_companies",
+    href: "/companies",
+    icon: "grid-3x3",
+  },
+  {
     name: "event_types_page_title",
     href: "/event-types",
     icon: "link",
