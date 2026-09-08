@@ -2,14 +2,14 @@
  * @deprecated
  * This file is deprecated. The only use of this file is to seed the database for E2E tests. Each test should take care of seeding it's own data going forward.
  */
-import dotEnv from "dotenv";
-import path from "node:path"
 
-import { appStoreMetadata } from "@calcom/app-store/appStoreMetaData";
+import path from "node:path";
 import { shouldEnableApp } from "@calcom/app-store/_utils/validateAppKeys";
+import { appStoreMetadata } from "@calcom/app-store/appStoreMetaData";
 import prisma from "@calcom/prisma";
 import type { Prisma } from "@calcom/prisma/client";
 import { AppCategories } from "@calcom/prisma/enums";
+import dotEnv from "dotenv";
 
 dotEnv.config({ path: path.resolve(__dirname, "../.env") });
 dotEnv.config({ path: path.resolve(__dirname, "../.env.appStore") });
@@ -51,7 +51,9 @@ async function createApp(
 
     // Only enable apps if they have valid keys (or don't require keys)
     const keysToValidate = (keys ?? foundApp?.keys) as Prisma.JsonValue | undefined;
-    const enabled = shouldEnableApp(dirName, keysToValidate);
+    // Rythms Cal does not offer payment apps; keep them disabled across deployments.
+    const isPaymentApp = Array.isArray(categories) && categories.includes(AppCategories.payment);
+    const enabled = !isPaymentApp && shouldEnableApp(dirName, keysToValidate);
     const data = {
       slug,
       dirName,
