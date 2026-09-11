@@ -4892,5 +4892,10 @@
   "rythms_mail_reconnect": "Reconnect Microsoft email",
   "rythms_mail_test": "Send a test to my inbox",
   "rythms_mail_test_accepted": "Microsoft accepted the test email. Check your inbox and junk folder to confirm delivery.",
-  "rythms_mail_failed": "Microsoft email could not complete this request. Check the configured sender and Microsoft consent, then reconnect."
+  "rythms_mail_failed": "Microsoft email could not complete this request. Check the configured sender and Microsoft consent, then reconnect.",
+  "hubspot_booking_account": "HubSpot account for these bookings",
+  "hubspot_choose_account": "Choose a HubSpot account",
+  "hubspot_account": "HubSpot account",
+  "hubspot_account_routing_description": "Contacts and meetings from this meeting type are sent only to the selected account. Choose the same account for companies that share a CRM.",
+  "hubspot_account_required": "Select an account to enable HubSpot delivery. No other account will be used as a fallback."
 }
