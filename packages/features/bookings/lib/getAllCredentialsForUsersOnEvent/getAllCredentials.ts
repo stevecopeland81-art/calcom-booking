@@ -1,12 +1,12 @@
-import type { z } from "zod";
-
 import { enrichUserWithDelegationCredentialsIncludeServiceAccountKey } from "@calcom/app-store/delegationCredential";
+import { isSelectedHubspotCredential } from "@calcom/app-store/hubspot/lib/account";
 import { eventTypeAppMetadataOptionalSchema } from "@calcom/app-store/zod-utils";
 import { UserRepository } from "@calcom/features/users/repositories/UserRepository";
 import prisma from "@calcom/prisma";
 import { credentialForCalendarServiceSelect } from "@calcom/prisma/selects/credential";
 import type { EventTypeMetaDataSchema } from "@calcom/prisma/zod-utils";
 import type { CredentialPayload } from "@calcom/types/Credential";
+import type { z } from "zod";
 
 export type EventType = {
   userId?: number | null;
@@ -98,6 +98,9 @@ export const getAllCredentialsIncludeServiceAccountKey = async (
   }
 
   allCredentials = allCredentials.filter((credential) => {
+    if (credential.appId === "hubspot") {
+      return isSelectedHubspotCredential(credential, eventTypeAppMetadata?.hubspot);
+    }
     if (!credential.type.includes("_crm") && !credential.type.includes("_other_calendar")) {
       return credential;
     }
