@@ -32,8 +32,12 @@ export default async function ShortBookingPage({ params }: { params: Promise<{ s
       {!page.companies.length && <p>{t("rythms_nothing_published")}</p>}
       <div className="space-y-8">
         {page.companies.map((company) => (
-          <section key={company.id} className="overflow-hidden rounded-xl border border-subtle">
-            <div className="border-l-4 p-6" style={{ borderLeftColor: company.brandColor }}>
+          <section
+            key={company.id}
+            className="overflow-hidden rounded-xl border border-subtle bg-default shadow-sm">
+            <div
+              className="border-l-4 p-6"
+              style={{ borderLeftColor: company.brandColor, backgroundColor: `${company.brandColor}12` }}>
               <h2 className="text-xl font-semibold">{company.name}</h2>
               {company.description && (
                 <p className="mt-2 whitespace-pre-line text-base text-subtle">{company.description}</p>
