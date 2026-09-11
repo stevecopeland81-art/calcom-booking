@@ -39,12 +39,14 @@ const useAppsData = () => {
       // Always get latest data available in Form because consequent calls to setData would update the Form but not allAppsData(it would update during next render)
       const allAppsDataFromForm = formMethods.getValues("metadata")?.apps || {};
       const appData = allAppsDataFromForm[appId];
+      const selectedCredentialId =
+        appId === "hubspot" ? allAppsDataFromForm.hubspot?.credentialId : credentialId;
       setAllAppsData({
         ...allAppsDataFromForm,
         [appId]: {
           ...appData,
           [key]: value,
-          credentialId,
+          credentialId: key === "credentialId" ? value : selectedCredentialId,
           appCategories,
         },
       });
