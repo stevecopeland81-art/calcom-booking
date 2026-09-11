@@ -1,8 +1,7 @@
-import { useTheme as useNextTheme } from "next-themes";
-import { useEffect } from "react";
-
 import { useEmbedTheme } from "@calcom/embed-core/embed-iframe";
 import { localStorage } from "@calcom/lib/webstorage";
+import { useTheme as useNextTheme } from "next-themes";
+import { useEffect } from "react";
 
 /**
  * It should be called once per route if you intend to use a theme different from `system` theme. `system` theme is automatically supported using <ThemeProvider />
@@ -14,7 +13,7 @@ import { localStorage } from "@calcom/lib/webstorage";
 export default function useTheme(themeToSet: "system" | (string & {}) | undefined | null, getOnly = false) {
   if (typeof window !== "undefined") {
     const themeFromLocalStorage = localStorage.getItem("app-theme");
-    themeToSet = themeToSet ?? themeFromLocalStorage ?? "system";
+    themeToSet = themeToSet ?? themeFromLocalStorage ?? "light";
   }
   const { resolvedTheme, setTheme, forcedTheme, theme: activeTheme } = useNextTheme();
   const embedTheme = useEmbedTheme();
