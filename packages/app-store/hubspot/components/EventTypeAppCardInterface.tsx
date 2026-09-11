@@ -3,7 +3,6 @@ import WriteToObjectSettings, {
   BookingActionEnum,
 } from "@calcom/app-store/_components/crm/WriteToObjectSettings";
 import { CrmFieldType } from "@calcom/app-store/_lib/crm-enums";
-import useIsAppEnabled from "@calcom/app-store/_utils/useIsAppEnabled";
 import { useAppContextWithSchema } from "@calcom/app-store/EventTypeAppContext";
 import type { EventTypeAppCardComponent } from "@calcom/app-store/types";
 import { WEBAPP_URL } from "@calcom/lib/constants";
@@ -23,8 +22,18 @@ const EventTypeAppCard: EventTypeAppCardComponent = function EventTypeAppCard({
 }) {
   const pathname = usePathname();
   const { t } = useLocale();
-  const { getAppData, setAppData } = useAppContextWithSchema<typeof appDataSchema>();
-  const { enabled, updateEnabled } = useIsAppEnabled(app);
+  const { getAppData, setAppData, disabled } = useAppContextWithSchema<typeof appDataSchema>();
+  const availableAccounts: { id: number; hubId?: number; hubDomain?: string }[] = app.hubspotAccounts ?? [];
+  const accounts = availableAccounts.filter((account) =>
+    app.credentialOwner?.credentialId
+      ? account.id === app.credentialOwner.credentialId
+      : app.userCredentialIds.includes(account.id)
+  );
+  const credentialId = getAppData("credentialId");
+  const selectedCredentialId = accounts.some((account) => account.id === credentialId)
+    ? credentialId
+    : undefined;
+  const enabled = getAppData("enabled") === true;
 
   const ignoreGuests = getAppData("ignoreGuests") ?? false;
   const skipContactCreation = getAppData("skipContactCreation") ?? false;
@@ -42,11 +51,42 @@ const EventTypeAppCard: EventTypeAppCardComponent = function EventTypeAppCard({
       app={app}
       teamId={eventType.team?.id || undefined}
       switchOnClick={(e: boolean): void => {
-        updateEnabled(e);
+        setAppData(
+          "credentialId",
+          selectedCredentialId ?? (accounts.length === 1 ? accounts[0].id : undefined)
+        );
+        setAppData("enabled", e);
       }}
       switchChecked={enabled}
       hideSettingsIcon>
       <Section.Content>
+        <Section.SubSection>
+          <label className="text-default mb-2 block font-medium" htmlFor={`hubspot-account-${eventType.id}`}>
+            {t("hubspot_booking_account")}
+          </label>
+          <select
+            id={`hubspot-account-${eventType.id}`}
+            className="border-default bg-default text-default w-full rounded-md border px-3 py-2"
+            disabled={disabled}
+            value={selectedCredentialId ?? ""}
+            onChange={(event) => {
+              const id = Number(event.target.value);
+              setAppData("credentialId", accounts.some((account) => account.id === id) ? id : undefined);
+            }}>
+            <option value="">{t("hubspot_choose_account")}</option>
+            {accounts.map((account) => (
+              <option key={account.id} value={account.id}>
+                {account.hubDomain || t("hubspot_account")} — {account.hubId || `#${account.id}`}
+              </option>
+            ))}
+          </select>
+          <p className="text-subtle mt-2 text-sm">{t("hubspot_account_routing_description")}</p>
+          {!selectedCredentialId && (
+            <p className="mt-2 text-sm text-red-600" role="status">
+              {t("hubspot_account_required")}
+            </p>
+          )}
+        </Section.SubSection>
         <Section.SubSection>
           <Section.SubSectionHeader
             icon="user-plus"
