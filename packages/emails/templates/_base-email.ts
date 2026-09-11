@@ -1,14 +1,13 @@
-import { decodeHTML } from "entities";
-import { z } from "zod";
-
+import process from "node:process";
 import dayjs from "@calcom/dayjs";
 import { FeaturesRepository } from "@calcom/features/flags/features.repository";
 import isSmsCalEmail from "@calcom/lib/isSmsCalEmail";
-import { serverConfig } from "@calcom/lib/serverConfig";
 import { getServerErrorFromUnknown } from "@calcom/lib/server/getServerErrorFromUnknown";
+import { serverConfig } from "@calcom/lib/serverConfig";
 import { setTestEmail } from "@calcom/lib/testEmails";
 import { prisma } from "@calcom/prisma";
-
+import { decodeHTML } from "entities";
+import { z } from "zod";
 import { sanitizeDisplayName } from "../lib/sanitizeDisplayName";
 
 export default class BaseEmail {
@@ -71,6 +70,13 @@ export default class BaseEmail {
       },
       ...(parseSubject.success && { subject: decodeHTML(parseSubject.data) }),
     };
+    if (process.env.RYTHMS_MICROSOFT_MAIL_OWNER_ID) {
+      const { sendMicrosoftMail } = await import("../lib/microsoftMail");
+      await sendMicrosoftMail(payloadWithUnEscapedSubject).catch((error: Error) =>
+        this.printNodeMailerError(error)
+      );
+      return "send mail async";
+    }
     const { createTransport } = await import("nodemailer");
     await new Promise((resolve, reject) =>
       createTransport(this.getMailerOptions().transport).sendMail(
