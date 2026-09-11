@@ -4883,5 +4883,14 @@
   "rythms_invite_accepted": "You have joined the company. You can now add your own meeting types.",
   "rythms_invite_wrong_account": "Sign in with the invited email address and verify it before accepting.",
   "rythms_invite_expired": "This invitation has expired, was revoked, or has already been accepted.",
-  "rythms_member_limit": "This company has reached its member or pending invitation limit of 100."
+  "rythms_member_limit": "This company has reached its member or pending invitation limit of 100.",
+  "rythms_mail_title": "Booking email",
+  "rythms_mail_description": "Send booking confirmations and account emails through {{email}}. Microsoft will ask for permission to send mail from this account. Calendar connections remain separate.",
+  "rythms_mail_connected": "Microsoft email is connected. Send a test to confirm delivery to your inbox.",
+  "rythms_mail_not_connected": "Connect the configured Microsoft account to enable email delivery.",
+  "rythms_mail_connect": "Connect Microsoft email",
+  "rythms_mail_reconnect": "Reconnect Microsoft email",
+  "rythms_mail_test": "Send a test to my inbox",
+  "rythms_mail_test_accepted": "Microsoft accepted the test email. Check your inbox and junk folder to confirm delivery.",
+  "rythms_mail_failed": "Microsoft email could not complete this request. Check the configured sender and Microsoft consent, then reconnect."
 }
