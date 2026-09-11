@@ -1,11 +1,11 @@
 import { getUsersCredentialsIncludeServiceAccountKey } from "@calcom/app-store/delegationCredential";
+import { getHubspotAccount } from "@calcom/app-store/hubspot/lib/account";
 import { checkAdminOrOwner } from "@calcom/features/auth/lib/checkAdminOrOwner";
 import getInstallCountPerApp from "@calcom/lib/apps/getInstallCountPerApp";
 import { buildNonDelegationCredentials } from "@calcom/lib/delegationCredential";
 import type { PrismaClient } from "@calcom/prisma";
-import type { Prisma, User, AppCategories } from "@calcom/prisma/client";
+import type { AppCategories, Prisma, User } from "@calcom/prisma/client";
 import { credentialForCalendarServiceSelect } from "@calcom/prisma/selects/credential";
-
 import type { TDependencyData } from "../_appRegistry";
 import { PaymentServiceMap } from "../payment.services.generated";
 import type { CredentialOwner } from "../types";
@@ -178,14 +178,14 @@ export async function getConnectedApps({
 
       // We need to know if app is payment type
       // undefined it means that app don't require app/setup/page
-      let isSetupAlready = undefined;
+      let isSetupAlready;
       if (credential && app.categories.includes("payment")) {
         const paymentAppImportFn = PaymentServiceMap[app.dirName as keyof typeof PaymentServiceMap];
         if (paymentAppImportFn) {
           const paymentApp = await paymentAppImportFn;
-                              if (paymentApp && "BuildPaymentService" in paymentApp && paymentApp?.BuildPaymentService) {
-                      const createPaymentService = paymentApp.BuildPaymentService;
-                      const paymentInstance = createPaymentService(credential);
+          if (paymentApp && "BuildPaymentService" in paymentApp && paymentApp?.BuildPaymentService) {
+            const createPaymentService = paymentApp.BuildPaymentService;
+            const paymentInstance = createPaymentService(credential);
             isSetupAlready = paymentInstance.isSetupAlready();
           }
         }
@@ -209,6 +209,11 @@ export async function getConnectedApps({
           credentialOwner,
         }),
         userCredentialIds,
+        ...(app.slug === "hubspot" && {
+          hubspotAccounts: credentials
+            .filter((c) => c.appId === "hubspot" && !c.invalid)
+            .map((c) => ({ id: c.id, ...getHubspotAccount(c.key) })),
+        }),
         invalidCredentialIds,
         teams,
         isInstalled: !!userCredentialIds.length || !!teams.length || app.isGlobal,
