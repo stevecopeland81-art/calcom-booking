@@ -1,7 +1,6 @@
-import prismaMock from "@calcom/testing/lib/__mocks__/prismaMock";
+import "@calcom/testing/lib/__mocks__/prismaMock";
 
-import { expect, test, vi, describe } from "vitest";
-
+import { describe, expect, test, vi } from "vitest";
 import { OAuthManager } from "../../_utils/oauth/OAuthManager";
 import { internalServerErrorResponse, successResponse } from "../../_utils/testUtils";
 import config from "../config.json";
@@ -34,7 +33,7 @@ vi.mock("../../_utils/getParsedAppKeysFromSlug", () => ({
 
 const mockRequestRaw = vi.fn();
 vi.mock("../../_utils/oauth/OAuthManager", () => ({
-  OAuthManager: vi.fn().mockImplementation(function() {
+  OAuthManager: vi.fn().mockImplementation(function () {
     return { requestRaw: mockRequestRaw };
   }),
 }));
@@ -60,8 +59,7 @@ const testCredential = {
 };
 
 describe("createMeeting", () => {
-  test("Successful `createMeeting` call", async () => {
-
+  test("creates a meeting from the documented Graph response with only joinWebUrl", async () => {
     const videoApi = VideoApiAdapter(testCredential);
 
     mockRequestRaw.mockImplementation(({ url }) => {
@@ -71,7 +69,6 @@ describe("createMeeting", () => {
             json: {
               id: 1,
               joinWebUrl: "https://join_web_url.example.com",
-              joinUrl: "https://join_url.example.com",
             },
           })
         );
@@ -109,7 +106,6 @@ describe("createMeeting", () => {
   });
 
   test(" `createMeeting` when there is no joinWebUrl and only joinUrl", async () => {
-
     const videoApi = VideoApiAdapter(testCredential);
 
     mockRequestRaw.mockImplementation(({ url }) => {
@@ -119,9 +115,6 @@ describe("createMeeting", () => {
             json: {
               id: 1,
               joinUrl: "https://join_url.example.com",
-              error: {
-                message: "ERROR",
-              },
             },
           })
         );
@@ -136,9 +129,12 @@ describe("createMeeting", () => {
       endTime: new Date(),
     };
 
-    await expect(() => videoApi?.createMeeting(event)).rejects.toThrowError(
-      "Error creating MS Teams meeting"
-    );
+    await expect(videoApi?.createMeeting(event)).resolves.toEqual({
+      id: 1,
+      password: "",
+      type: "office365_video",
+      url: "https://join_url.example.com",
+    });
     expect(OAuthManager).toHaveBeenCalled();
     expect(mockRequestRaw).toHaveBeenCalledWith({
       url: URLS.CREATE_MEETING.url,
@@ -151,6 +147,23 @@ describe("createMeeting", () => {
         }),
       },
     });
+  });
+
+  test.each([
+    { id: 1 },
+    { joinWebUrl: "https://join_web_url.example.com" },
+  ])("rejects an incomplete successful response: %j", async (response) => {
+    const videoApi = VideoApiAdapter(testCredential);
+    mockRequestRaw.mockResolvedValue(successResponse({ json: response }));
+
+    await expect(
+      videoApi?.createMeeting({
+        title: "Test Meeting",
+        description: "Test Description",
+        startTime: new Date(),
+        endTime: new Date(),
+      })
+    ).rejects.toThrowError("Error creating MS Teams meeting");
   });
 
   test("Failing `createMeeting` call", async () => {
