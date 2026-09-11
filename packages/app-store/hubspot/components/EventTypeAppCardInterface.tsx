@@ -34,6 +34,7 @@ const EventTypeAppCard: EventTypeAppCardComponent = function EventTypeAppCard({
     ? credentialId
     : undefined;
   const enabled = getAppData("enabled") === true;
+  const accountFieldId = `hubspot-account-${eventType.id}-${app.credentialOwner?.credentialId ?? "personal"}`;
 
   const ignoreGuests = getAppData("ignoreGuests") ?? false;
   const skipContactCreation = getAppData("skipContactCreation") ?? false;
@@ -61,11 +62,11 @@ const EventTypeAppCard: EventTypeAppCardComponent = function EventTypeAppCard({
       hideSettingsIcon>
       <Section.Content>
         <Section.SubSection>
-          <label className="text-default mb-2 block font-medium" htmlFor={`hubspot-account-${eventType.id}`}>
+          <label className="text-default mb-2 block font-medium" htmlFor={accountFieldId}>
             {t("hubspot_booking_account")}
           </label>
           <select
-            id={`hubspot-account-${eventType.id}`}
+            id={accountFieldId}
             className="border-default bg-default text-default w-full rounded-md border px-3 py-2"
             disabled={disabled}
             value={selectedCredentialId ?? ""}
