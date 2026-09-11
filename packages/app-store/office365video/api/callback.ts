@@ -1,9 +1,8 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-
 import { WEBAPP_URL, WEBAPP_URL_FOR_OAUTH } from "@calcom/lib/constants";
 import { getSafeRedirectUrl } from "@calcom/lib/getSafeRedirectUrl";
 import prisma from "@calcom/prisma";
-
+import { userMetadata } from "@calcom/prisma/zod-utils";
+import type { NextApiRequest, NextApiResponse } from "next";
 import getAppKeysFromSlug from "../../_utils/getAppKeysFromSlug";
 import getInstalledAppPath from "../../_utils/getInstalledAppPath";
 import createOAuthAppCredential from "../../_utils/oauth/createOAuthAppCredential";
@@ -68,6 +67,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   });
   const graphUser = await whoami.json();
 
+  if (!whoami.ok || !(graphUser.mail ?? graphUser.userPrincipalName)) {
+    return res
+      .status(502)
+      .json({ message: "Could not verify the Microsoft Teams account. Please reconnect." });
+  }
+
   // In some cases, graphUser.mail is null. Then graphUser.userPrincipalName most likely contains the email address.
   responseBody.email = graphUser.mail ?? graphUser.userPrincipalName;
   responseBody.expiry_date = Math.round(+new Date() / 1000 + responseBody.expires_in); // set expiry date in seconds
@@ -101,6 +106,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   await createOAuthAppCredential({ appId: "msteams", type: "office365_video" }, responseBody, req);
+
+  // Each host must authorize their own Teams connection before it becomes their default.
+  if (!state?.teamId) {
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { metadata: true },
+    });
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        metadata: {
+          ...userMetadata.parse(user.metadata),
+          defaultConferencingApp: { appSlug: "msteams" },
+        },
+      },
+    });
+  }
 
   return res.redirect(
     getSafeRedirectUrl(state?.returnTo) ?? getInstalledAppPath({ variant: "conferencing", slug: "msteams" })
