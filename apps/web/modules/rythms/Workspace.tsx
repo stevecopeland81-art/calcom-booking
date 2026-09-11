@@ -8,6 +8,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { SelectedCalendarsSettingsWebWrapper } from "~/calendars/components/SelectedCalendarsSettingsWebWrapper";
 import CompanyPeople from "./CompanyPeople";
 import CalendarSyncPanel from "./calendar-sync/CalendarSyncPanel";
+import MicrosoftMailPanel from "./MicrosoftMailPanel";
 import type { CompanyInput, WorkspaceMutation } from "./schema";
 import type { WorkspaceData } from "./service";
 import styles from "./workspace.module.css";
@@ -51,6 +52,7 @@ function CalendarPanel() {
       </Suspense>
       <p className={styles.help}>{t("rythms_destination_help")}</p>
       <CalendarSyncPanel />
+      <MicrosoftMailPanel />
     </section>
   );
 }
@@ -77,6 +79,7 @@ export default function Workspace() {
   }
 
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).has("mail")) setTab("calendars");
     setOrigin(window.location.origin);
     refresh().catch((cause: unknown) =>
       setError(cause instanceof Error ? cause.message : "rythms_load_failed")
