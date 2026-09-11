@@ -1,10 +1,7 @@
+import { EmbedTheme } from "@calcom/features/embed/lib/constants";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 import { describe, expect, it } from "vitest";
-
-import { EmbedTheme } from "@calcom/features/embed/lib/constants";
-
-import { getThemeProviderProps } from "../getThemeProviderProps";
-import { getUniqueIdentifierForBookingPage } from "../getThemeProviderProps";
+import { getThemeProviderProps, getUniqueIdentifierForBookingPage } from "../getThemeProviderProps";
 
 describe("getThemeProviderProps", () => {
   const fnArg = {
@@ -21,6 +18,7 @@ describe("getThemeProviderProps", () => {
   describe("App Theme Support", () => {
     const expectedStorageKey = "app-theme";
     const appThemeExpectedProps = {
+      defaultTheme: "light",
       attribute: "class",
       storageKey: expectedStorageKey,
       key: expectedStorageKey,
@@ -79,6 +77,7 @@ describe("getThemeProviderProps", () => {
 
   describe("Booking Page Theme Support", () => {
     const bookingPageExpectedProps = {
+      defaultTheme: "light",
       attribute: "class",
       nonce: "test-nonce",
       enableColorScheme: false,
@@ -126,6 +125,7 @@ describe("getThemeProviderProps", () => {
     };
 
     const embedPageExpectedProps = {
+      defaultTheme: "light",
       attribute: "class",
       nonce: "test-nonce",
       enableColorScheme: false,
