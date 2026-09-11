@@ -13,6 +13,8 @@ const hubspotClient = new hubspot.Client();
 
 export interface HubspotToken extends TokenResponseIF {
   expiryDate?: number;
+  hubId?: number;
+  hubDomain?: string;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -47,9 +49,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // set expiry date as offset from current time.
   hubspotToken.expiryDate = Math.round(Date.now() + hubspotToken.expiresIn * 1000);
 
+  const account = await hubspotClient.oauth.accessTokensApi.getAccessToken(hubspotToken.accessToken);
+  hubspotToken.hubId = account.hubId;
+  hubspotToken.hubDomain = account.hubDomain;
+
   await createOAuthAppCredential({ appId: metadata.slug, type: metadata.type }, hubspotToken, req);
 
   res.redirect(
-    getSafeRedirectUrl(state?.returnTo) ?? getInstalledAppPath({ variant: "other", slug: "hubspot" })
+    getSafeRedirectUrl(state?.returnTo) ?? getInstalledAppPath({ variant: "crm", slug: "hubspot" })
   );
 }
