@@ -1,7 +1,11 @@
 {
   "$schema": "https://turborepo.org/schema.json",
   "globalDependencies": ["yarn.lock"],
-  "globalPassThroughEnv": ["RAILWAY_SERVICE_ID", "RYTHMS_CALENDAR_SYNC_WORKER"],
+  "globalPassThroughEnv": [
+    "RAILWAY_SERVICE_ID",
+    "RYTHMS_CALENDAR_SYNC_WORKER",
+    "RYTHMS_MICROSOFT_MAIL_OWNER_ID"
+  ],
   "globalEnv": [
     "ALLOWED_HOSTNAMES",
     "ANALYZE",
