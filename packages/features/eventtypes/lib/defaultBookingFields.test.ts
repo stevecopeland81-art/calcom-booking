@@ -1,6 +1,5 @@
 import { excludeOrRequireEmailSchema } from "@calcom/prisma/zod-utils";
 import { describe, expect, it } from "vitest";
-
 import {
   DEFAULT_EXCLUDED_EMAILS,
   getDefaultBookingFieldsForNewEventType,
@@ -27,7 +26,9 @@ describe("getDefaultBookingFieldsForNewEventType", () => {
     const names = fields.map((field) => field.name);
 
     expect(names.slice(0, 2)).toEqual(["name", "email"]);
-    expect(names).toEqual(expect.arrayContaining(["location", "title", "notes", "guests", "rescheduleReason"]));
+    expect(names).toEqual(
+      expect.arrayContaining(["location", "title", "notes", "guests", "rescheduleReason"])
+    );
     expect(fields.filter((field) => field.excludeEmails)).toHaveLength(1);
   });
 
