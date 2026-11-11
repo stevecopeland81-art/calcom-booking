@@ -1,5 +1,6 @@
 import { getDefaultLocations } from "@calcom/app-store/_utils/getDefaultLocations";
 import { DailyLocationType } from "@calcom/app-store/constants";
+import { getDefaultBookingFieldsForNewEventType } from "@calcom/features/eventtypes/lib/defaultBookingFields";
 import { EventTypeRepository } from "@calcom/features/eventtypes/repositories/eventTypeRepository";
 import type { PrismaClient } from "@calcom/prisma";
 import { Prisma } from "@calcom/prisma/client";
@@ -83,6 +84,10 @@ export const createHandler = async ({ ctx, input }: CreateOptions) => {
     users: isManagedEventType || schedulingType ? undefined : { connect: { id: userId } },
     locations,
     schedule: scheduleId ? { connect: { id: scheduleId } } : undefined,
+    bookingFields: getDefaultBookingFieldsForNewEventType({
+      disableGuests: rest.disableGuests ?? false,
+      metadata,
+    }),
   };
 
   if (isCalVideoLocationActive && calVideoSettings) {
